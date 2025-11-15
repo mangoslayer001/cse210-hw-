@@ -5,7 +5,7 @@ class Program
 {
     static void Main()
     {
-        // Library of sample scriptures to slightly exceed requirements
+        // Library of sample scriptures
         var scriptures = new List<(Reference Ref, string Text)>
         {
             (new Reference("John", 3, 16),
@@ -21,41 +21,47 @@ class Program
         };
 
         var rnd = new Random();
-        var pick = scriptures[rnd.Next(scriptures.Count)];
-        var scripture = new Scripture(pick.Ref, pick.Text);
 
         while (true)
         {
-            Console.Clear();
-            Console.WriteLine(scripture.GetDisplayText());
-            Console.WriteLine();
-            Console.Write("Press ENTER to hide words or type quit: ");
-            string input = Console.ReadLine() ?? string.Empty;
+            // Pick a random scripture from the library
+            var pick = scriptures[rnd.Next(scriptures.Count)];
+            var scripture = new Scripture(pick.Ref, pick.Text);
 
-            if (input.Trim().Equals("quit", StringComparison.OrdinalIgnoreCase))
-            {
-                break;
-            }
-
-            // Hide a few words per step
-            scripture.HideRandomWords(3);
-
-            if (scripture.AllHidden())
+            // Memorization loop for this scripture
+            while (true)
             {
                 Console.Clear();
                 Console.WriteLine(scripture.GetDisplayText());
                 Console.WriteLine();
-                Console.WriteLine("All words are hidden. Program will end.");
-                break;
+                Console.Write("Press ENTER to hide words, type 'next' for a new scripture, or 'quit' to exit: ");
+                string input = Console.ReadLine() ?? string.Empty;
+
+                if (input.Trim().Equals("quit", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Goodbye!");
+                    return;
+                }
+
+                if (input.Trim().Equals("next", StringComparison.OrdinalIgnoreCase))
+                {
+                    break; // Go to a new random scripture
+                }
+
+                // Hide a few random words
+                scripture.HideRandomWords(3);
+
+                // If all words are hidden, automatically move to the next scripture
+                if (scripture.AllHidden())
+                {
+                    Console.Clear();
+                    Console.WriteLine(scripture.GetDisplayText());
+                    Console.WriteLine();
+                    Console.WriteLine("You finished this scripture! Starting a new one...");
+                    Console.ReadKey();
+                    break;
+                }
             }
         }
     }
 }
-
-/*
-Exceeding requirements notes
-
-1) Chooses only visible words to hide each step, which avoids wasting turns on already hidden words.
-2) Preserves punctuation while masking only letters, which makes the display clearer during memorization.
-3) Includes a small library of scriptures and selects one at random at startup.
-*/
